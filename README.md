@@ -1,4 +1,4 @@
-# 💬 Realtime Messenger — Django + WebSocket + Docker
+# 💬 Realtime Messenger — Django + WebSocket
 
 <p align="center">
   <img src="screenshots/screen_app.png" alt="Project Preview" width="800">
