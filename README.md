@@ -1,8 +1,8 @@
-# 💬 Realtime Messenger — پیام‌رسان Real-time با Django + Docker
+# 💬 Realtime Messenger — Django + WebSocket + Docker
 
-یک پیام‌رسان کامل و Real-time با **Django Channels** و **WebSocket** که از چت خصوصی، چت گروهی، ارسال/ویرایش/حذف لحظه‌ای پیام، و احراز هویت با OTP پشتیبانی می‌کند.
+A production-ready real-time messaging application built with **Django Channels** and **WebSocket**, supporting private chats, group chats, instant message editing/deletion, and OTP-based authentication.
 
-کل پروژه با **Docker** کانتینری شده و از **PostgreSQL** به‌عنوان دیتابیس اصلی استفاده می‌کند.
+Fully **Dockerized** with **PostgreSQL** as the primary database and **Redis** as the channel layer.
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-4.2+-092E20?style=for-the-badge&logo=django&logoColor=white)
@@ -14,33 +14,35 @@
 
 ---
 
-## 📌 درباره پروژه
+## 📌 About The Project
 
-**Realtime Messenger** یک پیام‌رسان کامل است که با هدف تمرین و نمایش توانمندی‌های **Django**، **Django Channels** و **Docker** ساخته شده. تمرکز اصلی این پروژه روی **Backend**، **Real-time Communication**، **معماری Async** و **کانتینری‌سازی** است.
+**Realtime Messenger** is a full-featured messaging platform built to demonstrate strong backend skills in **Django**, **Django Channels**, **WebSocket communication**, and **Docker-based deployment**. The main focus of this project is on **Backend Architecture**, **Real-time Communication**, and **Async Programming**.
 
-### ✨ چرا این پروژه؟
+### ✨ Why This Project?
 
-- ✅ پیاده‌سازی کامل **WebSocket** با `AsyncWebsocketConsumer`
-- ✅ ارتباط **Real-time** بین چند کاربر همزمان
-- ✅ **احراز هویت با OTP** (بدون نیاز به رمز عبور)
-- ✅ **Dockerize شده** با `docker-compose` (App + PostgreSQL + Redis)
-- ✅ **PostgreSQL** به عنوان دیتابیس اصلی
-- ✅ **Redis** به عنوان Channel Layer در production
-- ✅ معماری تمیز و ماژولار Django
+- ✅ Complete **WebSocket** implementation using `AsyncWebsocketConsumer`
+- ✅ **Real-time** bidirectional communication between multiple users
+- ✅ **OTP-based authentication** (passwordless login)
+- ✅ **Dockerized** with `docker-compose` (App + PostgreSQL + Redis)
+- ✅ **PostgreSQL** as the primary database
+- ✅ **Redis** as the channel layer for production
+- ✅ Clean and modular Django architecture
 
 ---
 
-## 🚀 شروع سریع با Docker
+## 🚀 Quick Start with Docker
 
-### پیش‌نیاز
-- [Docker](https://www.docker.com/products/docker-desktop) نصب باشد
-- [Docker Compose](https://docs.docker.com/compose/install/) (معمولاً همراه Docker Desktop هست)
+### Prerequisites
+- [Docker](https://www.docker.com/products/docker-desktop) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) (usually bundled with Docker Desktop)
 
-### دستورات راه‌اندازی
+### Setup Commands
+
+**Just run these two commands and you're done:**
 
 ```bash
-# 1. ساخت و اجرای کانتینرها
+# 1. Build and run the containers
 docker compose up --build
 
-# 2. ساخت کاربر ادمین (در ترمینال جداگانه)
+# 2. Create an admin user (in a separate terminal)
 docker compose exec app python manage.py createsuperuser
