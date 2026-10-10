@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ورود | پیام‌رسان</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'accounts/login.css' %}">
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.13 2 11.25c0 2.91 1.47 5.51 3.78 7.24L5 22l3.84-1.75c1 .27 2.07.42 3.16.42 5.52 0 10-4.13 10-9.25S17.52 2 12 2zm0 16.5c-.98 0-1.93-.15-2.82-.42l-.5-.18-2.28 1.04.47-2.13-.35-.4C4.9 15.2 4 13.3 4 11.25 4 7.25 7.59 4 12 4s8 3.25 8 7.25-3.59 7.25-8 7.25z"/>
+        <circle cx="8" cy="11" r="1.3"/>
+        <circle cx="12" cy="11" r="1.3"/>
+        <circle cx="16" cy="11" r="1.3"/>
+      </svg>
+    </div>
+
+    <h1>خوش آمدید</h1>
+    <p class="subtitle">برای ورود یا ثبت‌نام، شماره موبایل خود را وارد کنید</p>
+
+    <form id="loginForm" method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="input-group">
+        <label for="phone">شماره موبایل</label>
+        <div class="phone-input {% if form.phone.errors %}has-error{% endif %}" id="phoneWrapper">
+          <span class="country-code">+98</span>
+          <!-- این input فقط برای نمایش است -->
+          <input
+            type="tel"
+            id="phoneVisible"
+            placeholder="912 345 6789"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="tel"
+            value="{% if form.phone.value %}{{ form.phone.value|slice:'1:' }}{% endif %}"
+          >
+        </div>
+
+        <!-- این input واقعی است که به سرور می‌ره -->
+        <input type="hidden" name="phone" id="phone" value="{{ form.phone.value|default:'' }}">
+
+        {% if form.phone.errors %}
+          <p class="error-text show" id="errorText">{{ form.phone.errors.0 }}</p>
+        {% else %}
+          <p class="error-text" id="errorText"></p>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="login-btn" id="submitBtn">
+        <span class="btn-text">دریافت کد تأیید</span>
+        <span class="spinner"></span>
+      </button>
+    </form>
+
+    <p class="terms">
+      حساب کاربری ندارید؟<a href="{% url 'register_page' %}">   ثبت‌نام</a>
+    </p>
+
+    <p class="terms">
+      با ورود، <a href="#">شرایط استفاده</a> و
+      <a href="#">حریم خصوصی</a> را می‌پذیرید.
+    </p>
+  </div>
+
+<script>
+  const form        = document.getElementById('loginForm');
+  const visible     = document.getElementById('phoneVisible');
+  const hidden      = document.getElementById('phone');
+  const wrapper     = document.getElementById('phoneWrapper');
+  const errorText   = document.getElementById('errorText');
+  const submitBtn   = document.getElementById('submitBtn');
+
+  // فقط عدد، حداکثر ۱۰ رقم
+  visible.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    // پاک کردن خطا هنگام تایپ
+    if (errorText.classList.contains('show')) {
+      errorText.classList.remove('show');
+      wrapper.classList.remove('has-error');
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    const local = visible.value.trim();
+
+    // اعتبارسنجی سمت کلاینت: باید ۱۰ رقم و با ۹ شروع بشه
+    if (local.length !== 10 || !local.startsWith('9')) {
+      e.preventDefault();
+      errorText.textContent = 'شماره تلفن نامعتبر است';
+      errorText.classList.add('show');
+      wrapper.classList.add('has-error');
+      shakeCard();
+      return;
+    }
+
+    // تبدیل به فرمت نهایی: 09xxxxxxxxx
+    hidden.value = '0' + local;
+
+    // حالت لودینگ
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+    // دیگه preventDefault نمی‌کنیم، فرم به سرور می‌ره
+  });
+
+  function shakeCard() {
+    const card = document.querySelector('.login-card');
+    card.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-10px)' },
+      { transform: 'translateX(10px)' },
+      { transform: 'translateX(-8px)' },
+      { transform: 'translateX(8px)' },
+      { transform: 'translateX(0)' }
+    ], { duration: 400, easing: 'ease-in-out' });
+  }
+
+  // اگه از سمت سرور خطا اومده، لودینگ و shake کنیم
+  {% if form.phone.errors %}
+    document.addEventListener('DOMContentLoaded', () => {
+      shakeCard();
+      visible.focus();
+    });
+  {% else %}
+    window.addEventListener('load', () => visible.focus());
+  {% endif %}
+</script>
+</body>
+</html>

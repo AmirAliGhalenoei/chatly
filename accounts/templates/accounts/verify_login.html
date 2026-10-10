@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تأیید کد | پیام‌رسان</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'accounts/verify_login.css' %}">
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="icon-badge">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+      </svg>
+    </div>
+
+    <h1>کد تأیید</h1>
+    <p class="subtitle">
+      کد ۶ رقمی ارسال شده به شماره زیر را وارد کنید<br>
+      <b dir="ltr">+98 {{ phone|slice:"1:" }}</b>
+    </p>
+
+    <form id="verifyForm" method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="otp-inputs {% if form.code.errors %}has-error{% endif %}" id="otpWrapper">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" autofocus>
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+      </div>
+
+      <input type="hidden" name="code" id="code" value="">
+
+      <p class="error-text {% if form.code.errors %}show{% endif %}" id="errorText">
+        {% if form.code.errors %}{{ form.code.errors.0 }}{% endif %}
+      </p>
+
+      <button type="submit" class="login-btn" id="submitBtn">
+        <span class="btn-text">تأیید و ورود</span>
+        <span class="spinner"></span>
+      </button>
+    </form>
+
+    <p class="resend">
+      کد را دریافت نکردید؟
+      <a href="{% url 'resend_otp' %}" id="resendLink">ارسال مجدد</a>
+    </p>
+
+    <a href="{% url 'login_page' %}" class="back-link">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      تغییر شماره موبایل
+    </a>
+  </div>
+
+<script>
+  const inputs    = document.querySelectorAll('.otp-inputs input');
+  const hidden    = document.getElementById('code');
+  const wrapper   = document.getElementById('otpWrapper');
+  const errorText = document.getElementById('errorText');
+  const form      = document.getElementById('verifyForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  inputs.forEach((input, idx) => {
+    input.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+
+      if (e.target.value) {
+        e.target.classList.add('filled');
+        if (idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        } else {
+          input.blur();
+        }
+      } else {
+        e.target.classList.remove('filled');
+      }
+
+      if (errorText.classList.contains('show')) {
+        errorText.classList.remove('show');
+        wrapper.classList.remove('has-error');
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        inputs[idx - 1].focus();
+        inputs[idx - 1].value = '';
+        inputs[idx - 1].classList.remove('filled');
+      }
+      if (e.key === 'ArrowLeft' && idx < inputs.length - 1) inputs[idx + 1].focus();
+      if (e.key === 'ArrowRight' && idx > 0) inputs[idx - 1].focus();
+    });
+
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData.getData('text') || '')
+        .replace(/\D/g, '').slice(0, 6);
+
+      pasted.split('').forEach((ch, i) => {
+        if (inputs[i]) {
+          inputs[i].value = ch;
+          inputs[i].classList.add('filled');
+        }
+      });
+
+      const next = Math.min(pasted.length, inputs.length - 1);
+      inputs[next].focus();
+
+      if (errorText.classList.contains('show')) {
+        errorText.classList.remove('show');
+        wrapper.classList.remove('has-error');
+      }
+    });
+
+    input.addEventListener('focus', () => input.select());
+  });
+
+  form.addEventListener('submit', (e) => {
+    const code = Array.from(inputs).map(i => i.value).join('');
+
+    if (code.length !== 6) {
+      e.preventDefault();
+      errorText.textContent = 'کد تأیید باید ۶ رقم باشد';
+      errorText.classList.add('show');
+      wrapper.classList.add('has-error');
+      shakeCard();
+      const firstEmpty = Array.from(inputs).find(i => !i.value);
+      if (firstEmpty) firstEmpty.focus();
+      return;
+    }
+
+    hidden.value = code;
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+    inputs.forEach(i => i.disabled = true);
+  });
+
+  function shakeCard() {
+    document.querySelector('.login-card').animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-10px)' },
+      { transform: 'translateX(10px)' },
+      { transform: 'translateX(-8px)' },
+      { transform: 'translateX(8px)' },
+      { transform: 'translateX(0)' }
+    ], { duration: 400, easing: 'ease-in-out' });
+  }
+
+  {% if form.code.errors %}
+    document.addEventListener('DOMContentLoaded', () => {
+      shakeCard();
+      inputs[0].focus();
+    });
+  {% endif %}
+
+  const resendLink = document.getElementById('resendLink');
+  const RESEND_COOLDOWN = 30;
+
+  let seconds = 0;
+  let timerId = null;
+  const toFa = (n) => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+  function updateResendText() {
+    const m = Math.floor(seconds / 60);
+    const s = String(seconds % 60).padStart(2, '0');
+    resendLink.textContent = `ارسال مجدد (${toFa(m)}:${toFa(s)})`;
+  }
+
+  function startCooldown() {
+    if (timerId) clearInterval(timerId);
+    seconds = RESEND_COOLDOWN;
+    resendLink.classList.add('disabled');
+    updateResendText();
+
+    timerId = setInterval(() => {
+      seconds--;
+      if (seconds <= 0) {
+        clearInterval(timerId);
+        timerId = null;
+        resendLink.textContent = 'ارسال مجدد';
+        resendLink.classList.remove('disabled');
+      } else {
+        updateResendText();
+      }
+    }, 1000);
+  }
+
+  startCooldown();
+
+  resendLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (resendLink.classList.contains('disabled')) return;
+
+    resendLink.classList.add('disabled');
+    resendLink.textContent = 'در حال ارسال...';
+
+    try {
+      const response = await fetch("{% url 'resend_otp' %}", {
+        method: 'GET',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.ok) {
+        startCooldown();
+      } else {
+        alert(data.error || 'خطا در ارسال مجدد');
+        resendLink.classList.remove('disabled');
+        resendLink.textContent = 'ارسال مجدد';
+      }
+    } catch (err) {
+      console.error(err);
+      resendLink.classList.remove('disabled');
+      resendLink.textContent = 'ارسال مجدد';
+    }
+  });
+</script>
+</body>
+</html>

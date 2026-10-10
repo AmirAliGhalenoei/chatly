@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پروفایل من | پیام‌رسان</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'chat/profile.css' %}">
+</head>
+<body>
+
+  <div class="profile-wrapper">
+    <div class="profile-card">
+
+      <!-- بنر -->
+      <div class="profile-banner">
+
+        <a href="{% url 'logout' %}" class="back-btn" title="بازگشت" style="padding: 25px;">
+          خروج
+        </a>
+
+        <a href="{% url 'edit_profile' user.id %}" class="edit-btn" title="ویرایش پروفایل">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          <span>ویرایش</span>
+        </a>
+        
+      </div>
+
+      <!-- آواتار -->
+      <div class="profile-avatar-wrapper">
+        <div class="profile-avatar">
+          {% if user.user_profile.profile %}
+            <img src="{{ user.user_profile.profile.url }}" alt="{{ user.username }}">
+          {% else %}
+            {{ user.username|first|upper }}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- اطلاعات -->
+      <div class="profile-info">
+
+        <!-- نام کاربری -->
+        <div class="profile-name">{{ user.username }}</div>
+
+        <!-- آیدی کاربر -->
+        {% if user.user_profile.username_id %}
+          <div class="profile-id">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            <span>@{{ user.user_profile.username_id }}</span>
+          </div>
+        {% endif %}
+
+        <div class="profile-status">
+          <span class="dot"></span>
+          <span>آنلاین</span>
+        </div>
+
+        <!-- سن و تاریخ تولد -->
+        {% if user.user_profile.age or user.user_profile.date_of_birth %}
+          <div class="profile-meta">
+
+            {% if user.user_profile.age %}
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                </div>
+                <div class="meta-text">
+                  <div class="meta-label">سن</div>
+                  <div class="meta-value">{{ user.user_profile.age }} سال</div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if user.user_profile.date_of_birth %}
+              <div class="meta-item">
+                <div class="meta-icon">
+                  <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                </div>
+                <div class="meta-text">
+                  <div class="meta-label">تاریخ تولد</div>
+                  <div class="meta-value">{{ user.user_profile.date_of_birth|date:"Y/m/d" }}</div>
+                </div>
+              </div>
+            {% endif %}
+
+          </div>
+        {% endif %}
+
+        <!-- بیو -->
+        <div class="profile-section">
+          <div class="profile-section-title">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span> تلفن</span>
+          </div>
+
+          
+            <div class="profile-bio">{{ user.phone }}</div>
+          
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span>درباره من</span>
+          </div>
+
+          {% if user.user_profile.bio %}
+            <div class="profile-bio">{{ user.user_profile.bio }}</div>
+          {% else %}
+            <div class="profile-bio empty">هنوز بیوگرافی ثبت نشده</div>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
