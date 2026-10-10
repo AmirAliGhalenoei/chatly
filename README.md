@@ -1,4 +1,4 @@
-# 💬 Realtime Messenger — Django + WebSocket + Docker
+# 💬 Realtime Messenger — Django + WebSocket
 
 A production-ready real-time messaging application built with **Django Channels** and **WebSocket**, supporting private chats, group chats, instant message editing/deletion, and OTP-based authentication.
 
@@ -31,10 +31,6 @@ Fully **Dockerized** with **PostgreSQL** as the primary database and **Redis** a
 ---
 
 ## 🚀 Quick Start with Docker
-
-### Prerequisites
-- [Docker](https://www.docker.com/products/docker-desktop) installed
-- [Docker Compose](https://docs.docker.com/compose/install/) (usually bundled with Docker Desktop)
 
 ### Setup Commands
 
